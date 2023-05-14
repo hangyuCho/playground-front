@@ -1,11 +1,48 @@
-import Link from "next/link"
+const getData = async () => {
+  const res: any = await fetch(`https://app.rakuten.co.jp/services/api/Travel/HotelRanking/20170426?applicationId=1041165688926091329&format=json&carrier=0&genre=onsen`);
 
-import { siteConfig } from "@/config/site"
-import { buttonVariants } from "@/components/ui/button"
-
-export default function IndexPage() {
+  if (!res.ok) {
+    throw new Error('Failed to fetch data');
+  }
+  return res.json();
+}
+export default async  function IndexPage() {
+  const data = await getData();
   return (
-    <section className="container grid items-center gap-6 pb-8 pt-6 md:py-10">
-    </section>
+    <>
+      <div className="bg-white">
+      <div className="mx-auto max-w-2xl px-4 py-16 sm:px-6 sm:py-24 lg:max-w-7xl lg:px-8">
+        <h2 className="text-2xl font-bold tracking-tight text-gray-900">Customers also purchased</h2>
+
+        <div className="mt-6 grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-4 xl:gap-x-8">
+          {data.Rankings.map((category: any) => (
+            category.Ranking.hotels.map((item: any) => (
+            <div key={item.hotel.hotelNo} className="group relative">
+              <div className="min-h-80 aspect-h-1 aspect-w-1 w-full overflow-hidden rounded-md bg-gray-200 lg:aspect-none group-hover:opacity-75 lg:h-80">
+                <img
+                  src={item.hotel.hotelImageUrl}
+                  alt={item.hotel.hotelName}
+                  className="h-full w-full object-cover object-center lg:h-full lg:w-full"
+                />
+              </div>
+              <div className="mt-4 flex justify-between">
+                <div>
+                  <h3 className="text-sm text-gray-700">
+                    <a href={item.hotel.hotelInformationUrl}>
+                      <span aria-hidden="true" className="absolute inset-0" />
+                      {item.hotel.hotelName}
+                    </a>
+                  </h3>
+                  <p className="mt-1 text-sm text-gray-500">{item.hotel.rank}</p>
+                </div>
+                <p className="text-sm font-medium text-gray-900">{item.hotel.middleClassName}</p>
+              </div>
+              <div dangerouslySetInnerHTML={{ __html: item.hotel.userReview }}></div>1
+            </div>))
+          ))}
+        </div>
+      </div>
+    </div>
+    </>
   )
 }
